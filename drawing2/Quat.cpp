@@ -4,8 +4,13 @@
 #include "GeomMath.hpp"
 #include "BinSerialization.hpp"
 
+static const char *TAG_X = "x";
+static const char *TAG_Y = "y";
+static const char *TAG_Z = "z";
+static const char *TAG_W = "w";
+
 const char* Quatf::NAMES[] = {
-  "x", "y", "z", "w"
+  TAG_X, TAG_Y, TAG_Z, TAG_W
 };
 
 bool Quatf::operator ==(const Quatf &q) const {
@@ -83,36 +88,57 @@ void Quatf::norm() {
 void Quatf::print(FILE *file, const char *prefix, bool newline) const {
   fprintf(file, "%s[x=%.4f, y=%.4f, z=%.4f, w=%.4f]", (prefix) ? prefix : "",
     xConst(), yConst(), zConst(), wConst());
-  if (newline) putchar('\n');
+  if (newline) fputc('\n', file);
+}
+
+void Quatf::validate(const char *tag) const {
+  // quaternion is always valid
 }
 
 void Quatf::print2(FILE *file, const char *prefix, bool newline) const {
   fprintf(file, "%s  %f  %f  %f  %f", (prefix) ? prefix : "",
     xConst(), yConst(), zConst(), wConst());
-  if (newline) putchar('\n');
+  if (newline) fputc('\n', file);
 }
 
-int Quatf::readJson(const nlohmann::json &json) {
-  m_val.x = json["x"];
-  m_val.y = json["y"];
-  m_val.z = json["z"];
-  m_val.w = json["w"];
-  return 0;
+void Quatf::readJson(const nlohmann::json &json, const char *tag) {
+  try {
+    m_val.x = json[TAG_X];
+    m_val.y = json[TAG_Y];
+    m_val.z = json[TAG_Z];
+    m_val.w = json[TAG_W];
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading JSON '%s':\n%s", tag, e.what());
+  }
+  this->validate(tag);
 }
 
-nlohmann::json Quatf::saveJson() const {
-  return nlohmann::json({
-      { "x", m_val.x },
-      { "y", m_val.y },
-      { "z", m_val.z },
-      { "w", m_val.w }
-  });
+nlohmann::json Quatf::saveJson(const char *tag) const {
+  try {
+    return nlohmann::json({
+        { TAG_X, m_val.x },
+        { TAG_Y, m_val.y },
+        { TAG_Z, m_val.z },
+        { TAG_W, m_val.w }
+    });
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error creating JSON '%s':\n%s", tag, e.what());
+  }
 }
 
-int Quatf::readBin(FILE *file) {
-  return BinSerialization::readArray<float>(file, m_val.v, sizeof(m_val.v) / sizeof(m_val.v[0]));
+void Quatf::readBin(FILE *file, const char *tag) {
+  try {
+    BinSerialization::readArray(file, m_val.v, sizeof(m_val.v) / sizeof(m_val.v[0]), tag);
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading BIN '%s':\n%s", tag, e.what());
+  }
+  this->validate(tag);
 }
 
-int Quatf::saveBin(FILE *file) const {
-  return BinSerialization::writeArray<float>(file, m_val.v, sizeof(m_val.v) / sizeof(m_val.v[0]));
+void Quatf::saveBin(FILE *file, const char *tag) const {
+  try {
+    BinSerialization::writeArray(file, m_val.v, sizeof(m_val.v) / sizeof(m_val.v[0]), tag);
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error writing BIN '%s':\n%s", tag, e.what());
+  }
 }

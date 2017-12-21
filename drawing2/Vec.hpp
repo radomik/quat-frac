@@ -34,10 +34,11 @@ class Vec3f : public ISerializable {
   ValueVec3f  m_val;
 
 public:
-  virtual void readJson(const nlohmann::json &json);
-  virtual nlohmann::json saveJson() const;
-  virtual void readBin(FILE *file);
-  virtual void saveBin(FILE *file) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
   float  operator [](unsigned int i) const { return m_val.v[i]; }
   float& operator [](unsigned int i)       { return m_val.v[i]; }
@@ -83,6 +84,9 @@ public:
   float lengthSqr() const;
 
   void norm();
+
+  void print(FILE *file, const char *prefix = "", bool newline = false) const;
+  void print2(FILE *file, const char *prefix = "", bool newline = false) const;
 };
 
 #endif

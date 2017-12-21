@@ -61,7 +61,7 @@ public:
   Generator* getNewGenerator();
   DrawingCreator* getNewDrawingCreator() const;
 
-  void validate();
+  void validate() const;
 
   static const char *TAG_BASE_PATH;
   static const char *TAG_VERSION;

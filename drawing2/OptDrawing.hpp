@@ -4,8 +4,8 @@
 *
 * Created on 18 December 2014, 01:06
 */
-#ifndef QFRACTAL_DRAWING_OPTDRAWING_HPP
-#define QFRACTAL_DRAWING_OPTDRAWING_HPP
+#ifndef QFRACTAL_OPTDRAWING_HPP
+#define QFRACTAL_OPTDRAWING_HPP
 
 #include "ISerializable.hpp"
 #include "utils.hpp"
@@ -14,26 +14,24 @@
 
 class OptDrawing : public ISerializable {
 public:
-	Vec3f			rotation;
-	draw_mode_t		draw_mode;
-	float			rotate_angle;
+  Vec3f rotation;
+  draw_mode_t draw_mode;
+  float rotate_angle;
 
-	void	setDefault();
+  void setDefault();
+  void validate() const;
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  void apply() { _setDrawMode(); }
 
-	void apply() {
-		_setDrawMode();
-	}
-
-	void toggleDrawMode();
+  void toggleDrawMode();
 
 private:
-	void _setDrawMode();
+  void _setDrawMode();
 };
 
 #endif

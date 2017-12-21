@@ -14,48 +14,42 @@ class Range1Df : public ISerializable {
 public:
   float min, max, step;
 
-  virtual void readJson(const nlohmann::json &json);
-  virtual nlohmann::json saveJson() const;
-  virtual void readBin(FILE *file);
-  virtual void saveBin(FILE *file) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
-  bool operator ==(const Range1Df &other) const;
-
+  bool operator== (const Range1Df &other) const;
   void mulByPi();
-
-  void validate() const;
 };
 
 class Range3Df : public ISerializable {
 public:
   Range1Df x, y, z;
 
-  virtual void readJson(const nlohmann::json &json);
-  virtual nlohmann::json saveJson() const;
-  virtual void readBin(FILE *file);
-  virtual void saveBin(FILE *file) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
-  bool operator ==(const Range3Df &other) const;
-
+  bool operator== (const Range3Df &other) const;
   void mulByPi();
-
-  void validate() const;
 };
 
 class Range4Df : public ISerializable {
 public:
   Range1Df x, y, z, w;
 
-  virtual void readJson(const nlohmann::json &json);
-  virtual nlohmann::json saveJson() const;
-  virtual void readBin(FILE *file);
-  virtual void saveBin(FILE *file) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
-  bool operator ==(const Range4Df &other) const;
-
+  bool operator== (const Range4Df &other) const;
   void mulByPi();
-
-  void validate() const;
 };
 
 
@@ -68,16 +62,15 @@ public:
 
   DATA_TYPE min, max;
 
-  virtual void readJson(const nlohmann::json &json);
-  virtual nlohmann::json saveJson() const;
-  virtual void readBin(FILE *file);
-  virtual void saveBin(FILE *file) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
-  bool operator ==(const RangeIter &other) const {
+  bool operator== (const RangeIter &other) const {
     return (min == other.min) && (max == other.max);
   }
-
-  void validate() const;
 };
 
 #endif

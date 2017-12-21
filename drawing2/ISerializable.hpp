@@ -16,6 +16,8 @@ public:
 
   virtual void readBin(FILE *file, const char *tag) = 0;
   virtual void saveBin(FILE *file, const char *tag) const = 0;
+
+  virtual void validate(const char *tag) const = 0;
 };
 
 #endif

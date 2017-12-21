@@ -4,6 +4,10 @@
 #include "GeomMath.hpp"
 #include "BinSerialization.hpp"
 
+static const char *TAG_X = "x";
+static const char *TAG_Y = "y";
+static const char *TAG_Z = "z";
+
 bool Vec3f::operator ==(const Vec3f &q) const {
   return vec3::equals(*this, q);
 }
@@ -72,25 +76,57 @@ void Vec3f::norm() {
   vec3::norm(*this);
 }
 
-int Vec3f::readJson(const nlohmann::json &json) {
-  m_val.x = json["x"];
-  m_val.y = json["y"];
-  m_val.z = json["z"];
-  return 0;
+void Vec3f::print(FILE *file, const char *prefix, bool newline) const {
+  fprintf(file, "%s[x=%.4f, y=%.4f, z=%.4f]", (prefix) ? prefix : "",
+    xConst(), yConst(), zConst());
+  if (newline) fputc('\n', file);
 }
 
-nlohmann::json Vec3f::saveJson() const {
-  return nlohmann::json({
-      { "x", m_val.x },
-      { "y", m_val.y },
-      { "z", m_val.z }
-  });
+void Vec3f::print2(FILE *file, const char *prefix, bool newline) const {
+  fprintf(file, "%s  %f  %f  %f", (prefix) ? prefix : "",
+    xConst(), yConst(), zConst());
+  if (newline) fputc('\n', file);
 }
 
-int Vec3f::readBin(FILE *file) {
-  return BinSerialization::readArray<float>(file, m_val.v, sizeof(m_val.v)/sizeof(m_val.v[0]));
+void Vec3f::validate(const char *tag) const {
+  // vector is always valid
 }
 
-int Vec3f::saveBin(FILE *file) const {
-  return BinSerialization::writeArray<float>(file, m_val.v, sizeof(m_val.v)/sizeof(m_val.v[0]));
+void Vec3f::readJson(const nlohmann::json &json, const char *tag) {
+  try {
+    m_val.x = json[TAG_X];
+    m_val.y = json[TAG_Y];
+    m_val.z = json[TAG_Z];
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading JSON '%s':\n%s", tag, e.what());
+  }
+  this->validate(tag);
+}
+
+nlohmann::json Vec3f::saveJson(const char *tag) const {
+  try {
+    return nlohmann::json({
+        { TAG_X, m_val.x },
+        { TAG_Y, m_val.y },
+        { TAG_Z, m_val.z }
+    });
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error creating JSON '%s':\n%s", tag, e.what());
+  }
+}
+
+void Vec3f::readBin(FILE *file, const char *tag) {
+  try {
+    BinSerialization::readArray(file, m_val.v, sizeof(m_val.v)/sizeof(m_val.v[0]), tag);
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading BIN '%s':\n%s", tag, e.what());
+  }
+}
+
+void Vec3f::saveBin(FILE *file, const char *tag) const {
+  try {
+    BinSerialization::writeArray(file, m_val.v, sizeof(m_val.v)/sizeof(m_val.v[0]), tag);
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error writing BIN '%s':\n%s", tag, e.what());
+  }
 }

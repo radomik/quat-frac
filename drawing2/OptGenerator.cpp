@@ -15,7 +15,7 @@ const char* OptGenerator::TAG_MOD_Q = "mod_q";
 const size_t OptGenerator::MAX_BUF_SIZE = 10*1024*1024;
 
 void OptGenerator::validate() const {
-  this->version != 1 && this->version != 2) {
+  if (this->version != 1 && this->version != 2) {
     Q_THROW(this, "Invalid version=%u (expected {1,2})", this->version);
   }
   if (this->buf_size > OptGenerator::MAX_BUF_SIZE) {
