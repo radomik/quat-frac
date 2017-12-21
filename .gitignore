@@ -1,0 +1,10 @@
+/drawing2/x64/Debug/
+/drawing2/x64/Release/
+/ipch/
+/linux/obj/
+/linux/drawing2
+/linux/Makefile
+/x64/Debug/
+/x64/Release
+*.o
+*.exe

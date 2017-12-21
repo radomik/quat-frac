@@ -1,0 +1,44 @@
+OptGeneratorSecond.hpp
+	* copy from generator
+	* fix define to: QFRACTAL_DRAWING_OPTGENERATORSECOND_HPP
+	* add getNewDrawingCreator
+	* remove getNewGenerator
+
+OptGeneratorSecond.cpp
+	* add getNewDrawingCreator
+	* remove getNewGenerator
+
+OptGeneratorFirst - similar to above
+
+
+OptGenerator
+
+IPrimitive and descendants copy from drawing to generator.
+
+1. Generate to bin file
+Input:
+	* parameters JSON file
+Output:
+	* fractal binary file
+	* log file (optional)
+	* fractal debug data (optional)
+
+2. Draw from bin file
+Input:
+	* fractal binary file
+	* parameters JSON file (optional)
+
+Output:
+	* user saved parameters JSON file (optional)
+	* user saved screenshots directory path (optional)
+
+3. Generate and draw
+Input:
+	* parameters JSON file
+Output:
+	* fractal binary file (optional)
+	* log file (optional)
+	* fractal debug data (optional)
+	* user saved parameters JSON file (optional)
+	* user saved screenshots directory path (optional)
+

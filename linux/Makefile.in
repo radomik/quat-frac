@@ -1,0 +1,49 @@
+# Compiler command
+CC             := g++
+
+# make command
+MAKE           := make
+
+# Use _LINUX for Linux and _WINDOWS for Windows 
+# Note: Use _WINDOWS for Microsoft Visual Studio
+CFLAGS_OS      := -D _LINUX
+
+# Debug CFLAGS for GDB (Linux, MinGW only)
+#CFLAGS_DEBUG   := -g -ggdb
+
+# Operating system independent CFLAGS
+CFLAGS_ALL     := $(CFLAGS_OS)
+
+# CFLAGS used for GCC only (all versions)
+CFLAGS_GCC     := -Wall -march=native -mtune=native -pipe -O1 -fomit-frame-pointer
+
+# Current CFLAGS (GCC)
+CFLAGS         := $(CFLAGS_ALL) $(CFLAGS_GCC) $(CFLAGS_DEBUG)
+
+# CFLAGS used for creating compiler generated assembler sources (GCC)
+AFLAGS         := $(CFLAGS_ALL) $(CFLAGS_GCC) -S -masm=intel -fverbose-asm
+
+# LDFLAGS used by OpenGL
+LDFLAGS_GL      := -lGL -lGLU -lglut
+
+# Linker flags
+LDFLAGS         := -lm -lpthread $(LDFLAGS_GL)
+
+# Linker search directories (prepended with -L each)
+LDPATH          := 
+
+# Include directories (prepended with -L each)
+INC             := 
+
+# Output binary path
+BINPATH         := drawing2
+
+# Source directory
+SRC             := ../drawing2
+
+# *.o files directory
+OBJ            := obj
+
+# Directory for compiler generated assembler sources
+ASM            := asm
+
