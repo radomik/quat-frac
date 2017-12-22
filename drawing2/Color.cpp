@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Color.hpp"
 #include "FloatingPoint.hpp"
-#include "Name.hpp"
-#include "Parser.hpp"
 #include "BinSerialization.hpp"
 #include "GeomMath.hpp"
 
@@ -10,84 +8,58 @@ bool Color4f::operator ==(const Color4f& c) const {
   return vec4::equals(dataConst(), c.dataConst());
 }
 
+void Color4f::validate(const char *tag) const {
+  try {
+    for (unsigned int i = 0; i < Color4IndCount; i++) {
+      if (!validChannel((*this)[i])) {
+        Q_THROW(this, "Each channel must be in range [0.0f ... 1.0f]");
+      }
+    }
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Fail to validate '%s' (r=%f, g=%f, b=%f, a=%f):\n%s",
+      tag, this->rConst(), this->gConst(), this->bConst(), this->aConst(), e.what());
+  }
+}
+
 void Color4f::readJson(const nlohmann::json &json, const char *tag) {
-  const char *self_name = "Color4f";
-
-  Float val_float;
-
-  bool _rd[Color4IndCount] = { false, false, false, false };
-
-  unsigned int i;
-  int ret;
-
-  while (!parser.isEof()) {
-    if (parser.parseLine() < 0)
-      return -1;
-
-    if (parser.isClosureEnd()) break;
-
-    if (parser.isClosureBegin()) {
-      parser.unexpectedClosure(self_name);
-      return -1;
-    }
-    else {
-      if (parser.isToken()) {
-        for (i = 0; i < Color4IndCount; i++) {
-          if ((ret = parser.parseToken(val_float, Name::_rgba[i], &_rd[i], self_name)) < 0) return -1;
-          if ((ret > 0) && (_rd[i])) {
-            if (!validChannel(val_float.value))
-              return _invalChannel(Name::_rgba[i], val_float.value);
-            operator[](i) = val_float.value; break;
-          }
-        }
-
-        if (i < 4) continue;
-
-        parser.unexpectedToken(self_name);
-        return -1;
-      }
-    }
+  try {
+    this->r() = json["r"];
+    this->g() = json["g"];
+    this->b() = json["b"];
+    this->a() = json["a"];
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading JSON '%s':\n%s", tag, e.what());
   }
-
-  if (parser.isFull())
-  {
-    for (i = 0; i < Color4IndCount; i++) {
-      if (!_rd[i]) {
-        fprintf(stderr, "%s: Partially parsed:\n\
-Have{r,g,b,a}={%d,%d,%d,%d}\n", self_name, _rd[0], _rd[1], _rd[2], _rd[3]);
-        return -1;
-      }
-    }
-  }
-
-  return 0;
+  this->validate(tag);
 }
 
 nlohmann::json Color4f::saveJson(const char *tag) const {
-  Float val_float;
-
-  for (unsigned int i = 0; i < Color4IndCount; i++) {
-    val_float.value = operator[](i);
-    if (parser.writePrimitive(val_float, Name::_rgba[i]) < 0) return -1;
+  try {
+    return nlohmann::json({
+      { "r", this->rConst() },
+      { "g", this->gConst() },
+      { "b", this->bConst() },
+      { "a", this->aConst() }
+    });
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error creating JSON '%s':\n%s", tag, e.what());
   }
-
-  return 0;
 }
 
 void Color4f::readBin(FILE *file, const char *tag) {
-  for (unsigned int i = 0; i < Color4IndCount; i++) {
-    if (BinSerialization::readValue<float>(f, operator[](i)) < 0) return -1;
+  try {
+    BinSerialization::readArray(file, m_val.v, sizeof(m_val.v)/sizeof(m_val.v[0]), tag);
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading BIN '%s':\n%s", tag, e.what());
   }
-
-  return 0;
 }
 
 void Color4f::saveBin(FILE *file, const char *tag) const {
-  for (unsigned int i = 0; i < Color4IndCount; i++) {
-    if (BinSerialization::writeValue<float>(f, operator[](i)) < 0) return -1;
+  try {
+    BinSerialization::writeArray(file, m_val.v, sizeof(m_val.v)/sizeof(m_val.v[0]), tag);
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error writing BIN '%s':\n%s", tag, e.what());
   }
-
-  return 0;
 }
 
 bool Color4f::validChannel(float value) {

@@ -1,182 +1,130 @@
 #include "stdafx.h"
 #include "OptDisplay.hpp"
-#include "FloatingPoint.hpp"
-#include "Parser.hpp"
 #include "BinSerialization.hpp"
-#include "Name.hpp"
-#include "Integer.hpp"
 #include "gfx.hpp"
 
 void OptDisplayGeom::setDefault() {
-  x = 0;
-  y = 0;
-  w = 800;
-  h = 800;
+  this->x = 0;
+  this->y = 0;
+  this->w = 800;
+  this->h = 800;
+}
+
+void OptDisplayGeom::validate(const char *tag) const {
+  try {
+    if (this->w == 0 || this->h == 0) {
+      Q_THROW(this, "Width 'w' and height 'h' must be above zero. Obtained w=%u, h=%u", this->w, this->h);
+    }
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Fail to validate '%s':\n%s", tag, e.what());
+  }
 }
 
 void OptDisplay::setDefault() {
-  background.r() = 1.0f;
-  background.g() = 1.0f;
-  background.b() = 1.0f;
-  background.a() = 0.75f;
-  disp_geom.setDefault();
+  this->background.r() = 1.0f;
+  this->background.g() = 1.0f;
+  this->background.b() = 1.0f;
+  this->background.a() = 0.75f;
+  this->disp_geom.setDefault();
+}
+
+void OptDisplay::validate(const char *tag) const {
+  try {
+    this->background.validate("background");
+    this->disp_geom.validate("disp_geom");
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Fail to validate '%s':\n%s", tag, e.what());
+  }
 }
 
 void OptDisplayGeom::readJson(const nlohmann::json &json, const char *tag) {
-  const char *self_name = "OptDisplayGeom";
-
-  U32 val_uint;
-
-  bool rd_x  = false;
-  bool rd_y  = false;
-  bool rd_w  = false;
-  bool rd_h  = false;
-
-  int ret;
-
-  while (! parser.isEof()) {
-    if (parser.parseLine() < 0)
-      return -1;
-
-    if (parser.isClosureEnd()) break;
-
-    if (parser.isClosureBegin()) {
-      parser.unexpectedClosure(self_name);
-      return -1;
-    }
-    else {
-      if (parser.isToken()) {
-        if ((ret=parser.parseToken(val_uint, Name::x, &rd_x, self_name)) < 0) return -1;
-        if ((ret > 0) && (rd_x)) { x = val_uint.value; continue; }
-
-        if ((ret=parser.parseToken(val_uint, Name::y, &rd_y, self_name)) < 0) return -1;
-        if ((ret > 0) && (rd_y)) { y = val_uint.value; continue; }
-
-        if ((ret=parser.parseToken(val_uint, Name::w, &rd_w, self_name)) < 0) return -1;
-        if ((ret > 0) && (rd_w)) { w = val_uint.value; continue; }
-
-        if ((ret=parser.parseToken(val_uint, Name::h, &rd_h, self_name)) < 0) return -1;
-        if ((ret > 0) && (rd_h)) { h = val_uint.value; continue; }
-
-        parser.unexpectedToken(self_name);
-        return -1;
-      }
-    }
+  try {
+    this->x = json["x"];
+    this->y = json["y"];
+    this->w = json["w"];
+    this->h = json["h"];
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading JSON '%s':\n%s", tag, e.what());
   }
-
-  if ((parser.isFull()) && (! (rd_x && rd_y && rd_w && rd_h)))
-  {
-    fprintf(stderr, "%s: Partially parsed:\n\
-Have{x,y ; w,h}={%d,%d ; %d,%d}\n", self_name,
-      rd_x, rd_y, rd_w, rd_h);
-    return -1;
-  }
-
-  return 0;
+  this->validate(tag);
 }
 
 void OptDisplay::readJson(const nlohmann::json &json, const char *tag) {
-  const char *self_name = "OptDisplay";
-
-  Float o_rotate_angle;
-
-  bool rd_background   = false;
-  bool rd_disp_geom  = false;
-
-  int ret;
-
-  while (! parser.isEof()) {
-    if (parser.parseLine() < 0)
-      return -1;
-
-    if (parser.isClosureEnd()) break;
-
-    if (parser.isClosureBegin()) {
-      if ((ret=parser.parseClosure(background, Name::background, &rd_background, self_name)) < 0) return -1;
-      if ((ret > 0) && (rd_background)) continue;
-
-      if ((ret=parser.parseClosure(disp_geom, Name::disp_geom, &rd_disp_geom, self_name)) < 0) return -1;
-      if ((ret > 0) && (rd_disp_geom)) continue;
-
-      parser.unexpectedClosure(self_name);
-      return -1;
-    }
-    else {
-      if (parser.isToken()) {
-        parser.unexpectedToken(self_name);
-        return -1;
-      }
-    }
+  try {
+    this->background.readJson(json["background"], "background");
+    this->disp_geom.readJson(json["disp_geom"], "disp_geom");
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading JSON '%s':\n%s", tag, e.what());
   }
-
-  if ((parser.isFull()) && (! (rd_background && rd_disp_geom)))
-  {
-    fprintf(stderr, "%s: Partially parsed:\n\
-Have{background ; disp_geom}={%d,%d}\n", self_name,
-      rd_background, rd_disp_geom);
-    return -1;
-  }
-
-  return 0;
+  this->validate(tag);
 }
 
 nlohmann::json OptDisplayGeom::saveJson(const char *tag) const {
-  U32 val_uint;
-
-  val_uint.value = x;
-  if (parser.writePrimitive(val_uint, Name::x) < 0) return -1;
-
-  val_uint.value = y;
-  if (parser.writePrimitive(val_uint, Name::y) < 0) return -1;
-
-  val_uint.value = w;
-  if (parser.writePrimitive(val_uint, Name::w) < 0) return -1;
-
-  val_uint.value = h;
-  if (parser.writePrimitive(val_uint, Name::h) < 0) return -1;
-
-  return 0;
+  try {
+    return nlohmann::json({
+      { "x", this->x },
+      { "y", this->y },
+      { "w", this->w },
+      { "h", this->h }
+    });
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error creating JSON '%s':\n%s", tag, e.what());
+  }
 }
 
 nlohmann::json OptDisplay::saveJson(const char *tag) const {
-  Float o_rotate_angle;
-
-  if (parser.writeObject(background, Name::background) < 0) return -1;
-  if (parser.writeObject(disp_geom, Name::disp_geom) < 0) return -1;
-
-  return 0;
+  try {
+    return nlohmann::json({
+      { "background", this->background.saveJson("background") },
+      { "disp_geom", this->disp_geom.saveJson("disp_geom") }
+    });
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error creating JSON '%s':\n%s", tag, e.what());
+  }
 }
 
 void OptDisplayGeom::readBin(FILE *file, const char *tag) {
-  if (BinSerialization::readValue<unsigned int>(f, x) < 0) return -1;
-  if (BinSerialization::readValue<unsigned int>(f, y) < 0) return -1;
-  if (BinSerialization::readValue<unsigned int>(f, w) < 0) return -1;
-  if (BinSerialization::readValue<unsigned int>(f, h) < 0) return -1;
-
-  return 0;
+  try {
+    BinSerialization::readValue(file, this->x, "x");
+    BinSerialization::readValue(file, this->y, "y");
+    BinSerialization::readValue(file, this->w, "w");
+    BinSerialization::readValue(file, this->h, "h");
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading BIN '%s':\n%s", tag, e.what());
+  }
+  this->validate(tag);
 }
 
 void OptDisplay::readBin(FILE *file, const char *tag) {
-  if (background.readBin(f) < 0) return -1;
-  if (disp_geom.readBin(f) < 0) return -1;
-  return 0;
+  try {
+    this->background.readBin(file, "background");
+    this->disp_geom.readBin(file, "disp_geom");
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error reading BIN '%s':\n%s", tag, e.what());
+  }
+  this->validate(tag);
 }
 
 void OptDisplay::saveBin(FILE *file, const char *tag) const {
-  if (background.saveBin(f) < 0) return -1;
-  if (disp_geom.saveBin(f) < 0) return -1;
-  return 0;
+  try {
+    this->background.saveBin(file, "background");
+    this->disp_geom.saveBin(file, "disp_geom");
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error writing BIN '%s':\n%s", tag, e.what());
+  }
 }
 
 void OptDisplayGeom::saveBin(FILE *file, const char *tag) const {
-  if (BinSerialization::writeValue<unsigned int>(f, x) < 0) return -1;
-  if (BinSerialization::writeValue<unsigned int>(f, y) < 0) return -1;
-  if (BinSerialization::writeValue<unsigned int>(f, w) < 0) return -1;
-  if (BinSerialization::writeValue<unsigned int>(f, h) < 0) return -1;
-
-  return 0;
+  try {
+    BinSerialization::writeValue(file, this->x, "x");
+    BinSerialization::writeValue(file, this->y, "y");
+    BinSerialization::writeValue(file, this->w, "w");
+    BinSerialization::writeValue(file, this->h, "h");
+  } catch (const std::exception &e) {
+    Q_THROW(this, "Error writing BIN '%s':\n%s", tag, e.what());
+  }
 }
 
 void OptDisplay::_setBackground() {
-  glClearColor(background.rConst(), background.gConst(), background.bConst(), background.aConst());
+  glClearColor(this->background.rConst(), this->background.gConst(), this->background.bConst(), this->background.aConst());
 }
