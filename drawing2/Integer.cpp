@@ -56,18 +56,19 @@ void U8::saveBin(FILE *file, const char *tag) const {
 }
 
 unsigned int U32::_st_strToUint2(const std::string &str) {
-  std::string maxUintStr = std::to_string(UINT_MAX);
-  if (str.size() > maxUintStr.size()) { // must contain no more chars than in UINT_MAX converted to string
-    Q_STTHROW("'%s' is too long (than: %s)", str.c_str(), maxUintStr.c_str());
+  assert(sizeof(long long int) == 8);
+  assert(sizeof(unsigned int) == 4);
+
+  long long int lli = strtoll(str.c_str(), NULL, 0);
+  if (lli == LLONG_MAX && errno == ERANGE) { // check only positive out of range as negative numbers are already discarded
+    Q_STTHROW("'%s' is out of long long int range [%lld ... %lld]", str.c_str(), LLONG_MIN, LLONG_MAX);
   }
 
-  const double doubleValue = Double::parse2(str);
-  const double max = UINT_MAX;
-
-  if (Double::cmp(doubleValue, max) > 0) { // must not be above UINT
-    Q_STTHROW("'%s' <-> %lf is out of unsigned int range [0 ... %u]", str.c_str(), doubleValue, (unsigned int)max);
+  long long int max = UINT_MAX;
+  if (lli > max) { // must not be above UINT_MAX
+    Q_STTHROW("'%s' <-> %lld is out of unsigned int range [0 ... %lld]", str.c_str(), lli, max);
   }
-  return (unsigned int)doubleValue;
+  return (unsigned int)lli;
 }
 
 unsigned int U32::_st_strToUint(const std::string &str) {
