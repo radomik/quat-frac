@@ -12,60 +12,68 @@
 
 class OptCameraTransSpeed : public ISerializable {
 public:
-	float left_right; // above zero
-	float up_down;    // above zero
+  float left_right; // above zero
+  float up_down;    // above zero
 
-	void	setDefault();
+  void  setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 };
 
 class OptCameraZoomSpeed : public ISerializable {
 public:
-	float without_ctrl; // above zero
-	float with_ctrl;    // above zero
+  float without_ctrl; // above zero
+  float with_ctrl;    // above zero
 
-	void	setDefault();
+  void  setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 };
 
 class OptCameraRotate : public ISerializable {
 public:
-	float						sensitivity;
-	float						speed;
-	bool						enabled_mouse_rotate;
+  float           sensitivity;
+  float           speed;
+  bool            enabled_mouse_rotate;
 
-	void	setDefault();
+  void  setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 };
 
 class OptCamera : public ISerializable {
 public:
-	OptCameraTransSpeed		trans_speed;
-	OptCameraZoomSpeed		zoom_speed;
-	OptCameraRotate			rotate;
+  OptCameraTransSpeed   trans_speed;
+  OptCameraZoomSpeed    zoom_speed;
+  OptCameraRotate     rotate;
 
-	void	setDefault();
+  void  setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 };
 
 #endif

@@ -13,36 +13,40 @@
 
 class OptDisplayGeom : public ISerializable {
 public:
-	unsigned int x, y, w, h;
+  unsigned int x, y, w, h;
 
-	void	setDefault();
+  void  setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 };
 
 class OptDisplay : public ISerializable {
 public:
-	Color4f			background;
-	OptDisplayGeom	disp_geom;
+  Color4f     background;
+  OptDisplayGeom  disp_geom;
 
-	void	setDefault();
+  void  setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
 
-	void apply() {
-		_setBackground();
-	}
+  virtual void validate(const char *tag) const;
+
+  void apply() {
+    _setBackground();
+  }
 
 private:
-	void _setBackground();
+  void _setBackground();
 };
 
 #endif

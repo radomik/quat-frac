@@ -19,12 +19,12 @@ public:
   float rotate_angle;
 
   void setDefault();
-  void validate() const;
 
   virtual void readJson(const nlohmann::json &json, const char *tag);
   virtual nlohmann::json saveJson(const char *tag) const;
   virtual void readBin(FILE *file, const char *tag);
   virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
   void apply() { _setDrawMode(); }
 

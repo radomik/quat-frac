@@ -13,17 +13,19 @@
 
 class OptCameraPos : public ISerializable {
 public:
-	Vec3f	pos;
-	Vec3f	target;
-	Vec3f	up;
+  Vec3f pos;
+  Vec3f target;
+  Vec3f up;
 
-	void setDefault();
+  void setDefault();
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 };
 
 #endif

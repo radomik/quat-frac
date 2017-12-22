@@ -17,22 +17,23 @@
 
 class OptAppDrawing : public ISerializable {
 public:
-	OptCamera				opt_camera;
-	OptCameraPos			opt_camera_pos;
-	OptDisplay				opt_display;
-	OptDrawing				opt_drawing;
-	OptDrawingCreator*		opt_drawing_creator;
+  OptCamera       opt_camera;
+  OptCameraPos      opt_camera_pos;
+  OptDisplay        opt_display;
+  OptDrawing        opt_drawing;
+  OptDrawingCreator*    opt_drawing_creator;
 
-	OptAppDrawing() : opt_drawing_creator(NULL) {  }
-	~OptAppDrawing();
+  OptAppDrawing() : opt_drawing_creator(NULL) {  }
+  ~OptAppDrawing();
 
-	int			setDefault(unsigned int generator_version);
+  int     setDefault(unsigned int generator_version);
 
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const;
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 };
 
 #endif

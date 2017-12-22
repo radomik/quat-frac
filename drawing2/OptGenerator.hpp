@@ -55,13 +55,12 @@ public:
   virtual nlohmann::json saveJson(const char *tag) const;
   virtual void readBin(FILE *file, const char *tag);
   virtual void saveBin(FILE *file, const char *tag) const;
+  virtual void validate(const char *tag) const;
 
   virtual ~OptGenerator() { }
 
   Generator* getNewGenerator();
   DrawingCreator* getNewDrawingCreator() const;
-
-  void validate() const;
 
   static const char *TAG_BASE_PATH;
   static const char *TAG_VERSION;

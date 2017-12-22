@@ -13,78 +13,80 @@
 
 class OptDrawingCreator : public ISerializable {
 protected:
-	virtual int	customReadText(Parser& parser) = 0;
-	virtual int	customSaveText(Parser& parser) const = 0;
-	virtual int customReadBin(FILE* f) = 0;
-	virtual int customSaveBin(FILE* f) const = 0;
-	virtual void customSetDefault() = 0;
-	virtual void customSet(const OptDrawingCreator& other) = 0;
+  virtual void customReadJson(...) = 0;
+  virtual void customSaveJson(...) const = 0;
+  virtual void customReadBin(...) = 0;
+  virtual void customSaveBin(...) const = 0;
+  virtual void customSetDefault() = 0;
+  virtual void customSet(const OptDrawingCreator& other) = 0;
 
 public: /// common fields
-	// algorithm version
-	unsigned int	version;
+  // algorithm version
+  unsigned int  version;
 
-	// point color
-	Color4f			color;
+  // point color
+  Color4f     color;
 
-	// inverse color ?
-	bool			color_negative;
+  // inverse color ?
+  bool      color_negative;
 
-	// initial display list index
-	unsigned int	disp_list_ind;
+  // initial display list index
+  unsigned int  disp_list_ind;
 
-	virtual ~OptDrawingCreator() { }
+  virtual ~OptDrawingCreator() { }
 
-	// read common + custom fields
-	virtual int readText(Parser& parser);
+  // read common + custom fields
+  virtual void readJson(const nlohmann::json &json, const char *tag);
 
-	// read common + custom fields
-	virtual void readBin(FILE* f);
+  // read common + custom fields
+  virtual void readBin(FILE *file, const char *tag);
 
-	virtual int saveText(Parser& parser) const;
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void saveBin(FILE* f) const;
+  virtual void saveBin(FILE *file, const char *tag) const;
 
-	void setDefault();
+  virtual void validate(const char *tag) const;
 
-	void set(const OptDrawingCreator& other);
+  void setDefault();
 
-	/// create new OptDrawing of appropiate type (must be deleted by caller)
-	/// returns NULL on error
-	static OptDrawingCreator* readNewByText(Parser& parser);
+  void set(const OptDrawingCreator& other);
 
-	/// create new OptDrawing of appropiate type (must be deleted by caller)
-	/// returns NULL on error
-	static OptDrawingCreator* readNewByBin(FILE* f);
+  /// create new OptDrawing of appropiate type (must be deleted by caller)
+  /// returns NULL on error
+  static OptDrawingCreator* readNewByText(Parser& parser);
 
-	/// create new OptDrawing of appropiate type (must be deleted by caller)
-	/// returns NULL on error
-	static OptDrawingCreator* newByVersion(unsigned int version);
+  /// create new OptDrawing of appropiate type (must be deleted by caller)
+  /// returns NULL on error
+  static OptDrawingCreator* readNewByBin(FILE* f);
 
-	/// create new OptDrawing of appropiate type (must be deleted by caller)
-	/// returns NULL on error
-	static OptDrawingCreator* newByCopy(const OptDrawingCreator& other);
+  /// create new OptDrawing of appropiate type (must be deleted by caller)
+  /// returns NULL on error
+  static OptDrawingCreator* newByVersion(unsigned int version);
+
+  /// create new OptDrawing of appropiate type (must be deleted by caller)
+  /// returns NULL on error
+  static OptDrawingCreator* newByCopy(const OptDrawingCreator& other);
 
 private:
-	/// read common fields
-	/// @note version is already read
-	/// @see readNewByText
-	int _readTextCommon(Parser& parser);
+  /// read common fields
+  /// @note version is already read
+  /// @see readNewByText
+  void readJsonCommon(const nlohmann::json &json, const char *tag);
 
-	/// read common fields
-	/// @note version is already read
-	/// @see readNewByBin()
-	int _readBinCommon(FILE* f);
+  /// read common fields
+  /// @note version is already read
+  /// @see readNewByBin()
+  void _readBinCommon(FILE *file, const char *tag);
 
-	/// save common fields (also version)
-	int _saveTextCommon(Parser& parser) const;
+  /// save common fields (also version)
+  virtual nlohmann::json saveJsonCommon(const char *tag) const;
 
-	/// save common fields (also version)
-	int _saveBinCommon(FILE* f) const;
+  /// save common fields (also version)
+  void _saveBinCommon(FILE *file, const char *tag) const;
 
-	static void _st_unexpectedItem(const char* id, const char* id_type);
+  static void _st_unexpectedItem(const char* id, const char* id_type);
 
-	static OptDrawingCreator* _st_readText(Parser& parser, unsigned int version);
+  static OptDrawingCreator* _st_readJson(const nlohmann::json &json, const char *tag, unsigned int version);
 
 };
 

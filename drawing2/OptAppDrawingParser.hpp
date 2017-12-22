@@ -15,40 +15,42 @@
  * configuration file */
 class OptAppDrawingParser : protected ISerializable {
 public:
-	OptAppDrawing			opt_app_drawing;
+  OptAppDrawing     opt_app_drawing;
 
-	int	setDefault(unsigned int generator_version);
+  int setDefault(unsigned int generator_version);
 
-	int saveText(Parser& parser, const OptAppDrawing& opt_app_drawing) {
-		_setSaveOpt(opt_app_drawing);
-		return saveText(parser);
-	}
+  nlohmann::json saveJson(const char *tag, const OptAppDrawing& opt_app_drawing) {
+    _setSaveOpt(opt_app_drawing);
+    return saveJson(tag);
+  }
 
-	int saveBin(FILE* f, const OptAppDrawing& opt_app_drawing) {
-		_setSaveOpt(opt_app_drawing);
-		return saveBin(f);
-	}
+  void saveBin(FILE *file, const char *tag, const OptAppDrawing& opt_app_drawing) {
+    _setSaveOpt(opt_app_drawing);
+    saveBin(file, tag);
+  }
 
-	int saveTextCurrent(Parser& parser) { return saveText(parser, opt_app_drawing); }
-	int saveBinCurrent(FILE* f)         { return saveBin(f, opt_app_drawing); }
+  nlohmann::json saveJsonCurrent(const char *tag) { return saveJson(tag, opt_app_drawing); }
+  void saveBinCurrent(FILE *file, const char *tag) { return saveBin(file, tag, opt_app_drawing); }
 
 #ifdef UNICODE
-	int readOrDefault(const std::wstring& settings_file, unsigned int generator_version);
+  int readOrDefault(const std::wstring& settings_file, unsigned int generator_version);
 #else
-	int readOrDefault(const std::string& settings_file, unsigned int generator_version);
+  int readOrDefault(const std::string& settings_file, unsigned int generator_version);
 #endif
 
 protected:
-	virtual int readText(Parser& parser);
-	virtual int saveText(Parser& parser) const; // (private)
+  virtual void readJson(const nlohmann::json &json, const char *tag);
+  virtual nlohmann::json saveJson(const char *tag) const;
 
-	virtual void readBin(FILE* f);
-	virtual void saveBin(FILE* f) const;
+  virtual void readBin(FILE *file, const char *tag);
+  virtual void saveBin(FILE *file, const char *tag) const;
+
+  virtual void validate(const char *tag) const;
 
 private:
-	const OptAppDrawing*	m_opt_app_drawing_save;
+  const OptAppDrawing*  m_opt_app_drawing_save;
 
-	void _setSaveOpt(const OptAppDrawing& opt) { m_opt_app_drawing_save = &opt; }
+  void _setSaveOpt(const OptAppDrawing& opt) { m_opt_app_drawing_save = &opt; }
 };
 
 #endif

@@ -16,10 +16,10 @@ void OptDrawing::setDefault()
 
 void OptDrawing::validate() const
 {
-
+#error "TODO validate angle ranges"
 }
 
-int OptDrawing::readText(Parser& parser) {
+void OptDrawing::readJson(const nlohmann::json &json, const char *tag) {
   const char *self_name = "OptDrawing";
 
   DrawMode o_draw_mode;
@@ -75,7 +75,7 @@ Have{draw_mode ; rotate_angle ; rotation}={%d ; %d ; %d}\n", self_name,
   return 0;
 }
 
-int OptDrawing::saveText(Parser& parser) const {
+nlohmann::json OptDrawing::saveJson(const char *tag) const {
   DrawMode o_draw_mode;
   Float o_rotate_angle;
 
@@ -90,7 +90,7 @@ int OptDrawing::saveText(Parser& parser) const {
   return 0;
 }
 
-int OptDrawing::readBin(FILE* f) {
+void OptDrawing::readBin(FILE *file, const char *tag) {
   DrawMode o_draw_mode;
 
   if (rotation.readBin(f) < 0) return -1;
@@ -103,7 +103,7 @@ int OptDrawing::readBin(FILE* f) {
   return 0;
 }
 
-int OptDrawing::saveBin(FILE* f) const {
+void OptDrawing::saveBin(FILE *file, const char *tag) const {
   DrawMode o_draw_mode;
 
   if (rotation.saveBin(f) < 0) return -1;
